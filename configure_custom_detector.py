@@ -1,11 +1,12 @@
-"""
-This files autoconfigures YOLO for custom training on Pysource Object Detection Course
-"""
+# This files prepare a custom Object detector for YOLO v4
+#
 import glob
 import errno
 import os
 import argparse
 import re
+import zipfile
+from pathlib import Path
 
 
 # construct the argument parser and parse the arguments
@@ -15,6 +16,7 @@ ap.add_argument("-b", "--backup", type=str, required=False, help="backup path")
 #ap.add_argument("-a", "--method", type=str, default="t", choices=["t", "n"], help="test")
 #ap.add_argument("-r", "--radius", type=int, default=3, help="in")
 args = vars(ap.parse_args())
+
 
 class CustomYOLODetector:
     def __init__(self):
@@ -31,12 +33,11 @@ class CustomYOLODetector:
 
         self.n_classes = 0
 
-
     def count_classes_number(self):
         # Detect number of Classes by reading the labels indexes
         # If there are missing indexes, normalize the number of classes by rewriting the indexes starting from 0
-        txt_file_paths = glob.glob(self.images_folder_path + "*.txt")
-
+        txt_file_paths = glob.glob(self.images_folder_path + "/**/*.txt", recursive=True)
+        print(txt_file_paths)
         # Count number of classes
         class_indexes = set()
         for i, file_path in enumerate(txt_file_paths):
@@ -146,9 +147,15 @@ class CustomYOLODetector:
             f_o.write("\n".join(images_list))
         print("Train.txt generated")
 
+    def extract_zip_file(self, path_to_zip_file):
+        print("Extracting Images")
+        with zipfile.ZipFile(self.images_folder_path + "images.zip", 'r') as zip_ref:
+            zip_ref.extractall(self.images_folder_path)
 
 if "__main__" == __name__:
     cyd = CustomYOLODetector()
+
+    # Extract images
     cyd.count_classes_number()
     cyd.generate_yolo_custom_cfg()
     cyd.generate_obj_data()

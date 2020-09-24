@@ -37,7 +37,6 @@ class CustomYOLODetector:
         # Detect number of Classes by reading the labels indexes
         # If there are missing indexes, normalize the number of classes by rewriting the indexes starting from 0
         txt_file_paths = glob.glob(self.images_folder_path + "/**/*.txt", recursive=True)
-        print(txt_file_paths)
         # Count number of classes
         class_indexes = set()
         for i, file_path in enumerate(txt_file_paths):
@@ -131,7 +130,8 @@ class CustomYOLODetector:
 
     def generate_train_val_files(self):
         print("Generating Train/Validation list")
-        images_list = glob.glob(self.images_folder_path + "/**/*.jpg", recursive=True)
+        images_list = glob.glob(self.images_folder_path + "**/*.jpg", recursive=True)
+        print(images_list)
         print("{} Images found".format(len(images_list)))
         if len(images_list) == 0:
             raise FileNotFoundError(

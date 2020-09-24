@@ -36,7 +36,7 @@ class CustomYOLODetector:
     def count_classes_number(self):
         # Detect number of Classes by reading the labels indexes
         # If there are missing indexes, normalize the number of classes by rewriting the indexes starting from 0
-        txt_file_paths = glob.glob(self.images_folder_path + "/**/*.txt", recursive=True)
+        txt_file_paths = glob.glob(self.images_folder_path + "**/*.txt", recursive=True)
         # Count number of classes
         class_indexes = set()
         for i, file_path in enumerate(txt_file_paths):
@@ -123,6 +123,11 @@ class CustomYOLODetector:
     def generate_obj_data(self):
         obj_data = 'classes= {}\ntrain  = data/train.txt\nvalid  = data/test.txt\nnames = data/obj.names\nbackup = {}'\
             .format(self.n_classes, self.backup_folder_path)
+
+        # Create backup directory if it doesn't exist
+        if os.path.isdir(self.backup_folder_path) is False:
+            print("Creating backup directory")
+            os.makedirs(self.backup_folder_path)
 
         # Saving Obj data
         with open(self.obj_data_path, "w") as f_o:

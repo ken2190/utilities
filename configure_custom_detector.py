@@ -131,7 +131,7 @@ class CustomYOLODetector:
 
     def generate_train_val_files(self):
         print("Generating Train/Validation list")
-        images_list = glob.glob(self.images_folder_path + "*.jpg")
+        images_list = glob.glob(self.images_folder_path + "/**/*.jpg", recursive=True)
         print("{} Images found".format(len(images_list)))
         if len(images_list) == 0:
             raise FileNotFoundError(

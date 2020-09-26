@@ -14,9 +14,9 @@ def midpoint(x1, y1, x2, y2):
 
 class ConvertOIDtoYOLO:
     def __init__(self):
-        self.dataset_folder_path = r"C:\Users\Pinolo Fisso\Desktop\Dataset\**\*.txt"
+        self.dataset_folder_path = r"/content/OIDv4_ToolKit/OID/Dataset/**/*.txt"
         self.classes_indexes = {}
-        self.yolo_dataset_directory = r"C:\Users\Pinolo Fisso\Desktop\yolo_dataset"
+        self.yolo_dataset_directory = r"/content/OIDv4_ToolKit/OID/yolo_dataset"
         pass
 
     def get_class_index(self, class_name):
@@ -124,7 +124,7 @@ class ConvertOIDtoYOLO:
 
     def zip_yolo_dataset_folder(self):
         print("Zipping dataset ...")
-        shutil.make_archive("dataset_yolo", 'zip', self.yolo_dataset_directory)
+        shutil.make_archive("dataset_yolo", 'zip', self.yolo_dataset_directory, base_dir="/content")
 
 if __name__ == "__main__":
     cot = ConvertOIDtoYOLO()

@@ -11,6 +11,14 @@ from os.path import basename, dirname
 def midpoint(x1, y1, x2, y2):
     return ((x1 + x2)/2, (y1 + y2)/2)
 
+def make_archive(source, destination):
+        base = os.path.basename(destination)
+        name = base.split('.')[0]
+        format = base.split('.')[1]
+        archive_from = os.path.dirname(source)
+        archive_to = os.path.basename(source.strip(os.sep))
+        shutil.make_archive(name, format, archive_from, archive_to)
+        shutil.move('%s.%s'%(name,format), destination)
 
 class ConvertOIDtoYOLO:
     def __init__(self):
@@ -127,7 +135,7 @@ class ConvertOIDtoYOLO:
 
     def zip_yolo_dataset_folder(self):
         print("Zipping dataset ...")
-        shutil.make_archive("dataset_yolo", 'zip', self.yolo_dataset_directory, base_dir="/content")
+        make_archive(self.yolo_dataset_directory, "/content/dataset.zip")
 
 if __name__ == "__main__":
     cot = ConvertOIDtoYOLO()

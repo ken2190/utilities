@@ -142,3 +142,4 @@ if __name__ == "__main__":
     cot.move_label_to_parent()
     cot.generate_yolo_dataset()
     cot.zip_yolo_dataset_folder()
+    print("dataset.zip successfully created and ready to download")

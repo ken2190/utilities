@@ -16,7 +16,10 @@ class ConvertOIDtoYOLO:
     def __init__(self):
         self.dataset_folder_path = r"/content/OIDv4_ToolKit/OID/Dataset/**/*.txt"
         self.classes_indexes = {}
+       
         self.yolo_dataset_directory = r"/content/OIDv4_ToolKit/OID/yolo_dataset"
+        if not os.path.exists(self.yolo_dataset_directory):
+            os.makedirs(self.yolo_dataset_directory)
         pass
 
     def get_class_index(self, class_name):

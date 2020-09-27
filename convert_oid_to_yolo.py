@@ -9,23 +9,25 @@ from os.path import basename, dirname
 
 # Find center point coordinates
 def midpoint(x1, y1, x2, y2):
-    return ((x1 + x2)/2, (y1 + y2)/2)
+    return ((x1 + x2) / 2, (y1 + y2) / 2)
+
 
 def make_archive(source, destination):
-        base = os.path.basename(destination)
-        name = base.split('.')[0]
-        format = base.split('.')[1]
-        archive_from = os.path.dirname(source)
-        archive_to = os.path.basename(source.strip(os.sep))
-        shutil.make_archive(name, format, archive_from, archive_to)
-        shutil.move('%s.%s'%(name,format), destination)
+    base = os.path.basename(destination)
+    name = base.split('.')[0]
+    format = base.split('.')[1]
+    archive_from = os.path.dirname(source)
+    archive_to = os.path.basename(source.strip(os.sep))
+    shutil.make_archive(name, format, archive_from, archive_to)
+    shutil.move('%s.%s' % (name, format), destination)
+
 
 class ConvertOIDtoYOLO:
     def __init__(self):
         self.dataset_folder_path = r"/content/OIDv4_ToolKit/OID/Dataset/**/*.txt"
         self.classes_indexes = {}
         self.google_drive_dataset_dir = r"/content/gdrive/My Drive/yolo_dataset"
-       
+
         self.yolo_dataset_directory = r"/content/OIDv4_ToolKit/OID/yolo_dataset"
         if not os.path.exists(self.yolo_dataset_directory):
             os.makedirs(self.yolo_dataset_directory)
@@ -136,12 +138,13 @@ class ConvertOIDtoYOLO:
 
     def zip_yolo_dataset_folder(self):
         print("Saving dataset inside Google Drive ...")
-        
+
         # create the directory if it doesn't exist
-        if not os.path.exists():
+        if not os.path.exists(self.google_drive_dataset_dir):
             os.makedirs(self.google_drive_dataset_dir)
         make_archive(self.yolo_dataset_directory, self.google_drive_dataset_dir + "/dataset.zip")
-        print("Image dataset saved inside your google drive, on the folder yolo_dataset")
+        print("Image dataset saved inside your google drive, on the folder yolo_dataset.")
+
 
 if __name__ == "__main__":
     cot = ConvertOIDtoYOLO()

@@ -24,6 +24,7 @@ class ConvertOIDtoYOLO:
     def __init__(self):
         self.dataset_folder_path = r"/content/OIDv4_ToolKit/OID/Dataset/**/*.txt"
         self.classes_indexes = {}
+        self.google_drive_dataset_dir = r"/content/gdrive/My Drive/yolo_dataset"
        
         self.yolo_dataset_directory = r"/content/OIDv4_ToolKit/OID/yolo_dataset"
         if not os.path.exists(self.yolo_dataset_directory):
@@ -134,8 +135,13 @@ class ConvertOIDtoYOLO:
                     shutil.move(image_path, self.yolo_dataset_directory)
 
     def zip_yolo_dataset_folder(self):
-        print("Zipping dataset ...")
-        make_archive(self.yolo_dataset_directory, "/content/gdrive/My Drive/dataset.zip")
+        print("Saving dataset inside Google Drive ...")
+        
+        # create the directory if it doesn't exist
+        if not os.path.exists(self.yolo_dataset_directory):
+            os.makedirs(self.yolo_dataset_directory)
+        make_archive(self.yolo_dataset_directory, self.yolo_dataset_directory + "dataset.zip")
+        print("Image dataset saved inside your google drive, on the folder yolo_dataset")
 
 if __name__ == "__main__":
     cot = ConvertOIDtoYOLO()

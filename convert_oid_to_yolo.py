@@ -28,7 +28,7 @@ class ConvertOIDtoYOLO:
         self.classes_indexes = {}
         self.google_drive_dataset_dir = r"/content/gdrive/My Drive/yolo_dataset"
 
-        self.yolo_dataset_directory = r"/content/OIDv4_ToolKit/OID/yolo_dataset"
+        self.yolo_dataset_directory = r"/content/OIDv4_ToolKit/OID/oid_yolo"
         if not os.path.exists(self.yolo_dataset_directory):
             os.makedirs(self.yolo_dataset_directory)
         pass

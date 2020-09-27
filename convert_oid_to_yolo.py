@@ -138,9 +138,9 @@ class ConvertOIDtoYOLO:
         print("Saving dataset inside Google Drive ...")
         
         # create the directory if it doesn't exist
-        if not os.path.exists(self.yolo_dataset_directory):
-            os.makedirs(self.yolo_dataset_directory)
-        make_archive(self.yolo_dataset_directory, self.yolo_dataset_directory + "dataset.zip")
+        if not os.path.exists():
+            os.makedirs(self.google_drive_dataset_dir)
+        make_archive(self.yolo_dataset_directory, self.google_drive_dataset_dir + "/dataset.zip")
         print("Image dataset saved inside your google drive, on the folder yolo_dataset")
 
 if __name__ == "__main__":

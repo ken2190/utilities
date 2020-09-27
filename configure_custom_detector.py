@@ -24,7 +24,7 @@ class CustomYOLODetector:
         self.custom_cfg_path = "cfg/yolov4-custom.cfg"
         self.new_custom_cfg_path = "cfg/yolov4-custom-detector.cfg"
         self.obj_data_path = "data/obj.data"
-        self.images_folder_path = "data/obj/"
+        self.images_folder_path = "/content/gdrive/"
         self.backup_folder_path = "backup/"
 
         # Argument import

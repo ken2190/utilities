@@ -135,7 +135,7 @@ class ConvertOIDtoYOLO:
 
     def zip_yolo_dataset_folder(self):
         print("Zipping dataset ...")
-        make_archive(self.yolo_dataset_directory, "/content/dataset.zip")
+        make_archive(self.yolo_dataset_directory, "/content/gdrive/dataset.zip")
 
 if __name__ == "__main__":
     cot = ConvertOIDtoYOLO()

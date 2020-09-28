@@ -101,12 +101,14 @@ class ConvertOIDtoYOLO:
                             heigth_yolo = box_height / height_image
 
                             text = "{} {} {} {} {}".format(class_idx, cx_yolo, cy_yolo, width_yolo, heigth_yolo)
-
+                            
+                            numbers_found = True
                             text_converted.append(text)
-
-                            # Update to say that numbers were found
-                            return True, text_converted
-        return False, []
+        if numbers_found is True:
+            # Update to say that numbers were found
+            return True, text_converted
+        else:
+            return False, []
 
     def generate_yolo_dataset(self):
         txt_file_paths = glob.glob(self.dataset_folder_path, recursive=True)

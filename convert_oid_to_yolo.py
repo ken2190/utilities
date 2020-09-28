@@ -129,12 +129,15 @@ class ConvertOIDtoYOLO:
                 image_path = path_no_extension + ".jpg"
 
                 # if the image associate to the label exists, move it
-                if os.path.isfile(image_path):
-                    # Move label
-                    shutil.move(file_path, self.yolo_dataset_directory)
+                try:
+                    if os.path.isfile(image_path):
+                        # Move label
+                        shutil.move(file_path, self.yolo_dataset_directory)
 
-                    # Move image
-                    shutil.move(image_path, self.yolo_dataset_directory)
+                        # Move image
+                        shutil.move(image_path, self.yolo_dataset_directory)
+                except Exception as e:
+                    print(e)
 
     def zip_yolo_dataset_folder(self):
         print("Saving dataset inside Google Drive ...")

@@ -23,6 +23,7 @@ class CustomYOLODetector:
         # Files location
         self.custom_cfg_path = "cfg/yolov4-custom.cfg"
         self.new_custom_cfg_path = "cfg/yolov4-custom-detector.cfg"
+        self.new_custom_cfg_test_path = "cfg/yolov4-custom-detector-test.cfg"
         self.obj_data_path = "data/obj.data"
         self.images_folder_path = "data/obj/"
         self.backup_folder_path = "backup/"
@@ -84,7 +85,7 @@ class CustomYOLODetector:
                         for item in text_converted:
                             fp.writelines("%s\n" % item)
 
-    def generate_yolo_custom_cfg(self):
+    def generate_yolo_custom_cfg(self, batch_size, subdivisions, flag="training"):
         """
         This files loads the yolo
         :return:
@@ -101,7 +102,8 @@ class CustomYOLODetector:
         max_batches = 6000 if max_batches < 6000 else max_batches
         print("Max batches: {}".format(max_batches))
 
-        cfg_lines[6] = "subdivisions=32\n"
+        cfg_lines[5] = "batch={}\n".format(batch_size)
+        cfg_lines[6] = "subdivisions={}\n".format(subdivisions)
         cfg_lines[19] = "max_batches = {}\n".format(max_batches)
 
         # Classes number
@@ -117,8 +119,12 @@ class CustomYOLODetector:
         print("Filters: {}".format(filters))
 
         # Saving edited file
-        with open(self.new_custom_cfg_path, "w") as f_o:
-            f_o.writelines(cfg_lines)
+        if flag == "training":
+            with open(self.new_custom_cfg_path, "w") as f_o:
+                f_o.writelines(cfg_lines)
+        else:
+            with open(self.new_custom_cfg_test_path, "w") as f_o:
+                f_o.writelines(cfg_lines)
 
     def generate_obj_data(self):
         obj_data = 'classes= {}\ntrain  = data/train.txt\nvalid  = data/test.txt\nnames = data/obj.names\nbackup = {}'\
@@ -162,6 +168,7 @@ if "__main__" == __name__:
 
     # Extract images
     cyd.count_classes_number()
-    cyd.generate_yolo_custom_cfg()
+    cyd.generate_yolo_custom_cfg(64, 32)
+    cyd.generate_yolo_custom_cfg(1, 1, "test")
     cyd.generate_obj_data()
     cyd.generate_train_val_files()

@@ -142,7 +142,8 @@ class CustomYOLODetector:
 
         # Saving Obj names
         with open(self.obj_names_path, "w") as f_o:
-            pass
+            for i in range(self.n_classes):
+                f_o.writelines("CLASS {}".format(i))
 
     def generate_train_val_files(self):
         print("Generating Train/Validation list")

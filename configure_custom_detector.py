@@ -25,6 +25,7 @@ class CustomYOLODetector:
         self.new_custom_cfg_path = "cfg/yolov4-custom-detector.cfg"
         self.new_custom_cfg_test_path = "cfg/yolov4-custom-detector-test.cfg"
         self.obj_data_path = "data/obj.data"
+        self.obj_names_path = "data/obj.names"
         self.images_folder_path = "data/obj/"
         self.backup_folder_path = "backup/"
 
@@ -138,6 +139,10 @@ class CustomYOLODetector:
         # Saving Obj data
         with open(self.obj_data_path, "w") as f_o:
             f_o.writelines(obj_data)
+
+        # Saving Obj names
+        with open(self.obj_names_path, "w") as f_o:
+            pass
 
     def generate_train_val_files(self):
         print("Generating Train/Validation list")

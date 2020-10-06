@@ -159,7 +159,7 @@ class CustomYOLODetector:
         print("{} Images found".format(len(images_list)))
         if len(images_list) == 0:
             raise FileNotFoundError(
-                errno.ENOENT, os.strerror(errno.ENOENT), "Images list not found. Make sure that the images are with .jpg "
+                errno.ENOENT, os.strerror(errno.ENOENT), "Images list not found. Make sure that the images are '.jpg' "
                                                          "format and inside the directory {}".format(self.images_folder_path))
 
         # Read labels
@@ -170,6 +170,16 @@ class CustomYOLODetector:
         with open("data/train.txt", "w") as f_o:
             f_o.write("\n".join(images_list))
         print("Train.txt generated")
+        
+        # Generate test files, 10% of training
+        test_number = len(images_list) // 10
+        print("Test images: {}".format(test_number))
+        with open("data/test.txt", "w") as f_o:
+            for i, path in enumerate(images_list):
+                f_o.writelines("{}\n".format(path))
+                if i == test_number:
+                    break
+        print("Test.txt generated")
 
     def extract_zip_file(self, path_to_zip_file):
         print("Extracting Images")

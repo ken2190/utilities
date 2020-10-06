@@ -174,7 +174,7 @@ if "__main__" == __name__:
 
     # Extract images
     cyd.count_classes_number()
-    cyd.generate_yolo_custom_cfg(64, 32)
+    cyd.generate_yolo_custom_cfg(64, 64)
     cyd.generate_yolo_custom_cfg(1, 1, "test")
     cyd.generate_obj_data()
     cyd.generate_train_val_files()

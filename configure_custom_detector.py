@@ -13,7 +13,7 @@ from pathlib import Path
 ap = argparse.ArgumentParser()
 #ap.add_argument("-c", "--n_classes", type=int, required=True, help="number of classes")
 ap.add_argument("-b", "--backup", type=str, required=False, help="backup path")
-#ap.add_argument("-a", "--method", type=str, default="t", choices=["t", "n"], help="test")
+ap.add_argument("-s", "--subdivisions", type=str, required=False, default="64", choices=["16", "32", "64"], help="Subdivisions value (16, 32, 64)")
 #ap.add_argument("-r", "--radius", type=int, default=3, help="in")
 args = vars(ap.parse_args())
 
@@ -32,6 +32,8 @@ class CustomYOLODetector:
         # Argument import
         if args["backup"]:
             self.backup_folder_path = args["backup"]
+        if args["subdivisions"]:
+            self.subdivisions = args["subdivisions"]
 
         self.n_classes = 0
 
@@ -86,13 +88,13 @@ class CustomYOLODetector:
                         for item in text_converted:
                             fp.writelines("%s\n" % item)
 
-    def generate_yolo_custom_cfg(self, batch_size, subdivisions, flag="training"):
+    def generate_yolo_custom_cfg(self, flag="training"):
         """
         This files loads the yolo
         :return:
         """
         # 1) Edit CFG file
-        print("Generating YOLO Configuration file for {} classes".format(self.n_classes))
+        print("Generating YOLO Configuration {} file for {} classes".format(flag, self.n_classes))
         #print("Classes number: {}")
         with open(self.custom_cfg_path, "r") as f_o:
             cfg_lines = f_o.readlines()
@@ -103,6 +105,11 @@ class CustomYOLODetector:
         max_batches = 6000 if max_batches < 6000 else max_batches
         print("Max batches: {}".format(max_batches))
 
+        batch_size = 64
+        subdivisions = self.subdivisions
+        if flag == "test":
+            batch_size = 1
+            subdivisions = 1
         cfg_lines[5] = "batch={}\n".format(batch_size)
         cfg_lines[6] = "subdivisions={}\n".format(subdivisions)
         cfg_lines[19] = "max_batches = {}\n".format(max_batches)
@@ -174,7 +181,7 @@ if "__main__" == __name__:
 
     # Extract images
     cyd.count_classes_number()
-    cyd.generate_yolo_custom_cfg(64, 64)
-    cyd.generate_yolo_custom_cfg(1, 1, "test")
+    cyd.generate_yolo_custom_cfg()
+    cyd.generate_yolo_custom_cfg("test")
     cyd.generate_obj_data()
     cyd.generate_train_val_files()

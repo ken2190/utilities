@@ -180,6 +180,13 @@ class CustomYOLODetector:
                 if i == test_number:
                     break
         print("Test.txt generated")
+        
+        with open("data/valid.txt", "w") as f_o:
+            for i, path in enumerate(images_list):
+                f_o.writelines("{}\n".format(path))
+                if i == test_number:
+                    break
+        print("valid.txt generated")
 
     def extract_zip_file(self, path_to_zip_file):
         print("Extracting Images")

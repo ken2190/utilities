@@ -8,13 +8,13 @@ import re
 import zipfile
 from pathlib import Path
 
-
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
-#ap.add_argument("-c", "--n_classes", type=int, required=True, help="number of classes")
+# ap.add_argument("-c", "--n_classes", type=int, required=True, help="number of classes")
 ap.add_argument("-b", "--backup", type=str, required=False, help="backup path")
-ap.add_argument("-s", "--subdivisions", type=str, required=False, default="64", choices=["16", "32", "64"], help="Subdivisions value (16, 32, 64)")
-#ap.add_argument("-r", "--radius", type=int, default=3, help="in")
+ap.add_argument("-s", "--subdivisions", type=str, required=False, default="64", choices=["16", "32", "64"],
+                help="Subdivisions value (16, 32, 64)")
+# ap.add_argument("-r", "--radius", type=int, default=3, help="in")
 args = vars(ap.parse_args())
 
 
@@ -23,7 +23,7 @@ class CustomYOLODetector:
         # Files location
         self.custom_cfg_path = "cfg/yolov4-custom.cfg"
         self.new_custom_cfg_path = "cfg/yolov4-custom-detector.cfg"
-        self.new_custom_cfg_test_path = "cfg/yolov4-custom-detector-test.cfg"
+        self.new_custom_cfg_test_path = "/mydrive/yolov4/dnn_model/yolov4-custom-detector-test.cfg"
         self.obj_data_path = "data/obj.data"
         self.obj_names_path = "data/obj.names"
         self.images_folder_path = "data/obj/"
@@ -95,7 +95,7 @@ class CustomYOLODetector:
         """
         # 1) Edit CFG file
         print("Generating YOLO Configuration {} file for {} classes".format(flag, self.n_classes))
-        #print("Classes number: {}")
+        # print("Classes number: {}")
         with open(self.custom_cfg_path, "r") as f_o:
             cfg_lines = f_o.readlines()
 
@@ -135,7 +135,7 @@ class CustomYOLODetector:
                 f_o.writelines(cfg_lines)
 
     def generate_obj_data(self):
-        obj_data = 'classes= {}\ntrain  = data/train.txt\nvalid  = data/test.txt\nnames = data/obj.names\nbackup = {}'\
+        obj_data = 'classes= {}\ntrain  = data/train.txt\nvalid  = data/test.txt\nnames = data/obj.names\nbackup = {}' \
             .format(self.n_classes, self.backup_folder_path)
 
         # Create backup directory if it doesn't exist
@@ -160,7 +160,8 @@ class CustomYOLODetector:
         if len(images_list) == 0:
             raise FileNotFoundError(
                 errno.ENOENT, os.strerror(errno.ENOENT), "Images list not found. Make sure that the images are '.jpg' "
-                                                         "format and inside the directory {}".format(self.images_folder_path))
+                                                         "format and inside the directory {}".format(
+                    self.images_folder_path))
 
         # Read labels
         for img_path in images_list:
@@ -170,7 +171,7 @@ class CustomYOLODetector:
         with open("data/train.txt", "w") as f_o:
             f_o.write("\n".join(images_list))
         print("Train.txt generated")
-        
+
         # Generate test files, 10% of training
         test_number = len(images_list) // 10
         print("Test images: {}".format(test_number))
@@ -180,7 +181,7 @@ class CustomYOLODetector:
                 if i == test_number:
                     break
         print("Test.txt generated")
-        
+
         with open("data/valid.txt", "w") as f_o:
             for i, path in enumerate(images_list):
                 f_o.writelines("{}\n".format(path))
@@ -192,6 +193,7 @@ class CustomYOLODetector:
         print("Extracting Images")
         with zipfile.ZipFile(self.images_folder_path + "images.zip", 'r') as zip_ref:
             zip_ref.extractall(self.images_folder_path)
+
 
 if "__main__" == __name__:
     cyd = CustomYOLODetector()

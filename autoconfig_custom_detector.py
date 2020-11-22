@@ -11,36 +11,42 @@ from pathlib import Path
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
 # ap.add_argument("-c", "--n_classes", type=int, required=True, help="number of classes")
-ap.add_argument("-b", "--backup", type=str, required=False, help="backup path")
-ap.add_argument("-s", "--subdivisions", type=str, required=False, default="64", choices=["16", "32", "64"],
-                help="Subdivisions value (16, 32, 64)")
+ap.add_argument("-cfg", "--cfgpath", type=str, required=False, default="cfg/yolov4-custom.cfg",
+                help="Insert .cfg file path")
+ap.add_argument("-s", "--subdivisions", type=str, required=False, choices=["1", "2", "4", "8", "16", "32", "64"],
+                help="Subdivisions value (1, 2, 4, 8, 16, 32, 64)")
+ap.add_argument("-is", "--imagesize", type=str, required=False,
+                help="Image size")
+ap.add_argument("-v", "--validation", type=int, required=False, default=10,
+                help="Yolo version")
 # ap.add_argument("-r", "--radius", type=int, default=3, help="in")
 args = vars(ap.parse_args())
+
 
 
 class CustomYOLODetector:
     def __init__(self):
         # Files location
-        self.custom_cfg_path = "cfg/yolov4-custom.cfg"
-        self.new_custom_cfg_path = "cfg/yolov4-custom-detector.cfg"
-        self.new_custom_cfg_test_path = "cfg/yolov4-custom-detector-test.cfg"
+        self.new_custom_cfg_path = "backup/custom-detector.cfg"
         self.obj_data_path = "data/obj.data"
         self.obj_names_path = "data/obj.names"
         self.images_folder_path = "data/obj/"
         self.backup_folder_path = "backup/"
 
-        # Argument import
-        if args["backup"]:
-            self.backup_folder_path = args["backup"]
-        if args["subdivisions"]:
-            self.subdivisions = args["subdivisions"]
+        if not os.path.exists(self.backup_folder_path):
+            os.makedirs(self.backup_folder_path)
+            print("Created Backup Folder")
 
         self.n_classes = 0
+        self.n_labels = 0
 
     def count_classes_number(self):
+        print("Detecting classes number ...")
         # Detect number of Classes by reading the labels indexes
         # If there are missing indexes, normalize the number of classes by rewriting the indexes starting from 0
         txt_file_paths = glob.glob(self.images_folder_path + "**/*.txt", recursive=True)
+        self.n_labels = len(txt_file_paths)
+        print("{} label files found".format(self.n_labels))
         # Count number of classes
         class_indexes = set()
         for i, file_path in enumerate(txt_file_paths):
@@ -56,9 +62,9 @@ class CustomYOLODetector:
 
         # Update classes number
         self.n_classes = len(class_indexes)
+        print("{} classes found".format(self.n_classes))
 
         # Verify if there are missing indexes
-        print("Classes detected: {}".format(len(class_indexes)))
         if max(class_indexes) > len(class_indexes) - 1:
             print("Class indexes missing")
             print("Normalizing and rewriting classes indexes so that they have consecutive index number")
@@ -88,60 +94,72 @@ class CustomYOLODetector:
                         for item in text_converted:
                             fp.writelines("%s\n" % item)
 
-    def generate_yolo_custom_cfg(self, flag="training"):
+    def generate_yolo_custom_cfg(self):
         """
         This files loads the yolo
         :return:
         """
         # 1) Edit CFG file
-        print("Generating YOLO Configuration {} file for {} classes".format(flag, self.n_classes))
+        print("Generating .cfg file for {} classes".format(self.n_classes))
         # print("Classes number: {}")
-        with open(self.custom_cfg_path, "r") as f_o:
-            cfg_lines = f_o.readlines()
 
         # Edit subdivision, max_batches, classes and filters on configuration file
         # Max batches 2000*class, but a minimum of 6000
         max_batches = self.n_classes * 2000
         max_batches = 6000 if max_batches < 6000 else max_batches
-        print("Max batches: {}".format(max_batches))
+        max_batches = self.n_labels if max_batches < self.n_labels else max_batches
 
-        batch_size = 64
-        subdivisions = self.subdivisions
-        if flag == "test":
-            batch_size = 1
-            subdivisions = 1
-        cfg_lines[5] = "batch={}\n".format(batch_size)
-        cfg_lines[6] = "subdivisions={}\n".format(subdivisions)
-        cfg_lines[19] = "max_batches = {}\n".format(max_batches)
+        print("Settings:")
+        print("max batches: {}".format(max_batches))
 
-        # Classes number
-        cfg_lines[969] = "classes={}\n".format(self.n_classes)
-        cfg_lines[1057] = "classes={}\n".format(self.n_classes)
-        cfg_lines[1145] = "classes={}\n".format(self.n_classes)
+        with open(args["cfgpath"], "r") as f_o:
+            cfg_lines = f_o.readlines()
 
-        # Filters
-        filters = (self.n_classes + 5) * 3
-        cfg_lines[962] = "filters={}\n".format(filters)
-        cfg_lines[1050] = "filters={}\n".format(filters)
-        cfg_lines[1138] = "filters={}\n".format(filters)
-        print("Filters: {}".format(filters))
+        lines = []
+        for line in cfg_lines:
+            if re.search("subdivisions=[0-9]+\n", line) and args["subdivisions"]:
+                print("subdivisions: {}".format(args["subdivisions"]))
+                new_line = "subdivisions={}\n".format(args["subdivisions"])
+                lines.append(new_line)
+                continue
+            elif re.search("width=[0-9]+\n", line) and args["imagesize"]:
+                print("width: {}".format(args["imagesize"]))
+                new_line = "width={}\n".format(args["imagesize"])
+                lines.append(new_line)
+                continue
+            elif re.search("height=[0-9]+\n", line) and args["imagesize"]:
+                print("height: {}".format(args["imagesize"]))
+                new_line = "height={}\n".format(args["imagesize"])
+                lines.append(new_line)
+                continue
+            elif re.search("max_batches[0-9\s=]+\n", line):
+                new_line = "max_batches = {}\n".format(max_batches)
+                lines.append(new_line)
+                continue
+            elif re.search("steps[0-9\s=,]+\n", line):
+                new_line = "steps={},{}\n".format(int(max_batches*0.8), int(max_batches*0.9))
+                lines.append(new_line)
+                continue
+            elif re.search("classes[0-9\s=]+\n", line):
+                new_line = "classes={}\n".format(self.n_classes)
+                lines.append(new_line)
+                continue
+            elif re.search("filters=255\n", line):
+                filters = (self.n_classes + 5) * 3
+                new_line = "filters={}\n".format(filters)
+                lines.append(new_line)
+                continue
+
+            # Append the same line if different parameters are not found
+            lines.append(line)
 
         # Saving edited file
-        if flag == "training":
-            with open(self.new_custom_cfg_path, "w") as f_o:
-                f_o.writelines(cfg_lines)
-        else:
-            with open(self.new_custom_cfg_test_path, "w") as f_o:
-                f_o.writelines(cfg_lines)
+        with open(self.new_custom_cfg_path, "w") as f_o:
+            f_o.writelines(lines)
 
     def generate_obj_data(self):
         obj_data = 'classes= {}\ntrain  = data/train.txt\nvalid  = data/test.txt\nnames = data/obj.names\nbackup = {}' \
             .format(self.n_classes, self.backup_folder_path)
-
-        # Create backup directory if it doesn't exist
-        if os.path.isdir(self.backup_folder_path) is False:
-            print("Creating backup directory")
-            os.makedirs(self.backup_folder_path)
 
         # Saving Obj data
         with open(self.obj_data_path, "w") as f_o:
@@ -182,13 +200,6 @@ class CustomYOLODetector:
                     break
         print("Test.txt generated")
 
-        with open("data/valid.txt", "w") as f_o:
-            for i, path in enumerate(images_list):
-                f_o.writelines("{}\n".format(path))
-                if i == test_number:
-                    break
-        print("valid.txt generated")
-
     def extract_zip_file(self, path_to_zip_file):
         print("Extracting Images")
         with zipfile.ZipFile(self.images_folder_path + "images.zip", 'r') as zip_ref:
@@ -201,6 +212,5 @@ if "__main__" == __name__:
     # Extract images
     cyd.count_classes_number()
     cyd.generate_yolo_custom_cfg()
-    cyd.generate_yolo_custom_cfg("test")
     cyd.generate_obj_data()
     cyd.generate_train_val_files()
